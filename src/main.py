@@ -133,7 +133,7 @@ def collect(height):
 
     forkMotor.spin_to_position(10)
     wait(1, SECONDS)
-    forkMotor.spin_to_position(-height)
+    forkMotor.spin_to_position(-height, False)
     wait(1, SECONDS)
     leftMotor.spin_for(FORWARD, -720, DEGREES, 100, RPM, False)
     rightMotor.spin_for(FORWARD, 720, DEGREES, 100, RPM, True)
@@ -269,9 +269,9 @@ def mainFunction():
         '''
 
         if j == 0:
-            target_distance = 1833.466 * 5
+            target_distance = 1650.087 * 5
         if j == 1:
-            target_distance = 687.55 * 5
+            target_distance = 630.2536 * 5
         else:
             target_distance = 12345
             print('BAD BAD BAD')
