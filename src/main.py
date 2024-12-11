@@ -1,9 +1,9 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
-# 	Module:       main.py                                                      #
-# 	Author:       krizz                                                        #
-# 	Created:      12/4/2024, 5:08:37 PM                                        #
-# 	Description:  V5 project                                                   #
+#   Module:       main.py                                                      #
+#   Author:       krizz                                                        #
+#   Created:      12/4/2024, 5:08:37 PM                                        #
+#   Description:  V5 project                                                   #
 #                                                                              #
 # ---------------------------------------------------------------------------- #
 
@@ -59,10 +59,11 @@ Vision16 = Vision(Ports.PORT16, 50, Vision16__LIME, Vision16__GRAPEFRUIT, Vision
 Vision3_LIME = Signature(1, -6429, -5309, -5869, -3997, -3303, -3650, 2.5, 0)
 Vision3 = Vision(Ports.PORT20, 50, Vision3_LIME)
 '''
-Vision16__LIME = Signature (1, -6603, -5905, -6254, -3719, -3109, -3414, 2.5, 0)
-Vision16__LEMON = Signature (2, 3005, 3301, 3153, -3491, -3243, -3367, 2.5, 0)
-Vision16__MANGO = Signature (3, 6697, 7835, 7266, -2235, -2041, -2138, 2.5, 0)
-Vision16 = Vision (Ports.PORT20, 50, Vision16__LIME, Vision16__LEMON, Vision16__MANGO)
+Vision16__LIME = Signature (1, -6571, -5693, -6132, -3053, -2661, -2857, 2.5, 0)
+Vision16__MANGO = Signature (2, 3641, 5393, 4517, -2541, -2241, -2391, 2.5, 0)
+Vision16__LEMON = Signature (3, 1193, 2485, 1839, -3569, -3375, -3472, 3.5, 0)
+Vision16 = Vision (Ports.PORT20, 50, Vision16__LIME, Vision16__MANGO, Vision16__LEMON)
+
 
 
 targetX = 0
@@ -82,10 +83,10 @@ runMainFunction = False
 def detect():
 
     if i == 0:
-        obj = Vision16.take_snapshot(Vision16__MANGO)
+        obj = Vision16.take_snapshot(Vision16__LEMON)
         print(1)
     elif i == 1:
-        obj = Vision16.take_snapshot(Vision16__LEMON)
+        obj = Vision16.take_snapshot(Vision16__MANGO)
         print(2)
     elif i == 2:
         obj = Vision16.take_snapshot(Vision16__LIME)
@@ -95,6 +96,7 @@ def detect():
         largest = Vision16.largest_object()
         cx, cy, width, height = largest.centerX, largest.centerY, largest.width, largest.height
         print('DETECTED')
+        print(height)
         return cx, cy, width, height
     else:
         return None, None, 0, 0
@@ -107,9 +109,9 @@ def lineFollow():
         rightMotor.spin(FORWARD, -200)
     elif leftLine.reflectivity() > rightLine.reflectivity():
         leftMotor.spin(FORWARD, 170)
-        rightMotor.spin(FORWARD, -40)
+        rightMotor.spin(FORWARD, -50)
     elif rightLine.reflectivity() > leftLine.reflectivity():
-        leftMotor.spin(FORWARD, 40)
+        leftMotor.spin(FORWARD, 50)
         rightMotor.spin(FORWARD, -170)
     elif leftLine.reflectivity() < lowerBound and rightLine.reflectivity() < lowerBound:
         if leftLine.reflectivity() < rightLine.reflectivity():
@@ -148,6 +150,7 @@ def mainFunction():
 
     if currentState == IDLE:
         print("Starting autonomous sequence")
+        basketMotor.reset_position()
         basketMotor.spin_to_position(30, DEGREES)  # Reset basket position2
         currentState = LINE
 
@@ -239,70 +242,68 @@ def mainFunction():
         print("Depositing fruit into the box")
         basketMotor.spin_to_position(-30, DEGREES)  # Dump fruit
         wait(1, SECONDS)  # Pause to allow fruit to fall
-        basketMotor.spin_to_position(30, DEGREES) 
-
+        basketMotor.spin_to_position(30, DEGREES, 5, RPM) 
+        wait(1, SECONDS)
+        basketMotor.spin_to_position(-30, DEGREES)
+        wait(1, SECONDS)
+        basketMotor.spin_to_position(30, DEGREES, 5, RPM) 
+        wait(1, SECONDS)
         # Step 4: Line follow backwards to starting position
-        print("Line following backwards to starting position")
+        print("Moving backwards")
         # Reset motor positions to track the distance back
         leftMotor.reset_position()
         rightMotor.reset_position()
-
+        '''
         if j == 0:
-            target_distance = 2000  
-            print(j)
-            j += 1
-            print(j)
+            target_distance = 1145.917 * 5
+            print('j: ', j)
+            j = 1
+            print('j: ',j)
         if j == 1:
-            target_distance = 2000
-            print(j)
-            j += 1
-            print(j)
+            target_distance = 1145.917 * 5
+            print('j: ',j)
+            j = 2
+            print('j: ',j)
         else:
             target_distance = 0
+        '''
+
+        if j == 0:
+            target_distance = 1833.466 * 5
+        if j == 1:
+            target_distance = 687.55 * 5
+        else:
+            target_distance = 12345
+            print('BAD BAD BAD')
 
         while leftMotor.position(DEGREES) > -target_distance:
-            '''
-            if leftLine.reflectivity() > 50 and rightLine.reflectivity() > 50:
-                leftMotor.spin(REVERSE, 150, RPM)
-                rightMotor.spin(REVERSE, -150, RPM)
-            elif leftLine.reflectivity() > rightLine.reflectivity():
-                leftMotor.spin(REVERSE, 170, RPM)
-                rightMotor.spin(REVERSE, -90, RPM)
-            elif rightLine.reflectivity() > leftLine.reflectivity():
-                leftMotor.spin(REVERSE, 90, RPM)
-                rightMotor.spin(REVERSE, -170, RPM)
-            else:
-                leftMotor.spin(REVERSE, 150, RPM)
-                rightMotor.spin(REVERSE, -150, RPM)
-'''
-            if lowerBound <= leftLine.reflectivity() <= upperBound and lowerBound <= rightLine.reflectivity() <= upperBound:
-                leftMotor.spin(REVERSE, 200)
-                rightMotor.spin(REVERSE, -200)
-                print('STRAIGHT')
-            elif leftLine.reflectivity() < rightLine.reflectivity():
-                leftMotor.spin(REVERSE, 170)
-                rightMotor.spin(REVERSE, -90)
-                print('RIGHT')
-            elif rightLine.reflectivity() < leftLine.reflectivity():
-                leftMotor.spin(REVERSE, 90)
-                rightMotor.spin(REVERSE, -170)
-                print('LEFT')
-            elif leftLine.reflectivity() < lowerBound and rightLine.reflectivity() < lowerBound:
-                if leftLine.reflectivity() < rightLine.reflectivity():
-                    leftMotor.spin(REVERSE, 225)
-                    rightMotor.spin(REVERSE, -150)
-                    print('????')
+            print("Backwards")
+            leftMotor.spin(FORWARD, -100, RPM)
+            rightMotor.spin(FORWARD, 100, RPM)
+        '''
+                if leftLine.reflectivity() > 50 and rightLine.reflectivity() > 50:
+                    leftMotor.spin(REVERSE, 150, RPM)
+                    rightMotor.spin(REVERSE, -150, RPM)
+                elif leftLine.reflectivity() > rightLine.reflectivity():
+                    leftMotor.spin(REVERSE, 170, RPM)
+                    rightMotor.spin(REVERSE, -90, RPM)
+                elif rightLine.reflectivity() > leftLine.reflectivity():
+                    leftMotor.spin(REVERSE, 90, RPM)
+                    rightMotor.spin(REVERSE, -170, RPM)
                 else:
-                    leftMotor.spin(REVERSE, 150)
-                    rightMotor.spin(REVERSE, -225)
-                    print('?')
-
+                    leftMotor.spin(REVERSE, 150, RPM)
+                    rightMotor.spin(REVERSE, -150, RPM)
+    '''
         leftMotor.stop()
         rightMotor.stop()
-        print("Returned to starting position")
+        print("J: ", j)
+        j+=1
+        print("J: ", j)
+        print("ARRIVED AT NEXT TREE")
 
         # Transition back to SEARCHING state
         currentState = SEARCHING
+        print('RETURNING -> SEARCHING')
 
     # elif currentState == RETURNING:
     #     # Step 1: Return to the line
